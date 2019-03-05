@@ -1,32 +1,44 @@
 # Clustering Systems
 
-## Running the clustering on OpenShift
+## Running the clustering on OpenShift with mlflow
+First, we need to get the application code on OpenShift. Once you have the code on openshift, you can have multiple instances of your experiment running with different parameters.
 
-First you'll load the template that has all required resources
+To run this application on openshift, we need to create a container image for it. In other words, this means that we need to download the code that we want to run on openshift. To do this a image build template should already be available in your openshift namespace.
 
-```
-❯ oc create -f ./cluster-job-template.yaml -f ./build-config-template.yaml
-template "systems-clustering-job" created
-template "systems-clustering-bc-is" created
+To download the source code for our experiment to openshift, use the following command:
 ```
 
-Then create the BuildConfig and ImageStream
+oc process mlflow-experiment-bc --param APPLICATION_NAME=your-application-name --param GIT_URI=https://github.com/ManageIQ/aiops-insights-clustering.git --param APP_FILE=app.py | oc create -f -
 
 ```
-❯ oc new-app --template systems-clustering-bc-is
---> Deploying template "mhild-test/systems-clustering-bc-is" to project mhild-test
+- Here, the APPLICATION_NAME parameter is the name of the container image that will be built and is where your code will be downloaded, this is the image name that you will use to run your experiments.
+- You can set GIT_URI to the link for your repository to create a container image for your application.
+- You can also change the APP_FILE env variable to your app file name.
+ 
+If the image build process has started you should see some output like this:
 
-     * With parameters:
-        * APPLICATION_NAME=systems-clustering
-        * GIT_URI=https://github.com/ManageIQ/aiops-insights-clustering.git
-
---> Creating resources ...
-    buildconfig "systems-clustering" created
-    imagestream "systems-clustering" created
---> Success
-    Use 'oc start-build systems-clustering' to start a build.
-    Run 'oc status' to view your app.
 ```
+    imagestream.image.openshift.io "my-mlflow-experiment" created
+    buildconfig.build.openshift.io "my-mlflow-experiment" created
+    
+```
+
+To see if the build process has finished, run the following command:
+```
+    oc logs bc/your-application-name
+    
+```
+If you see something like:
+```
+    Pushed 5/10 layers, 50% complete
+    Pushed 6/10 layers, 60% complete
+    Pushed 7/10 layers, 70% complete
+    Pushed 8/10 layers, 80% complete
+    Pushed 9/10 layers, 90% complete
+    Pushed 10/10 layers, 100% complete
+    Push successful
+```
+at the end of the logs, the build is complete.
 
 ## Development workflow
 
@@ -36,24 +48,10 @@ Copy .env file and adjust variables
 cp .env.example .env
 ```
 
-Start a build
-
-```
-❯ oc start-build systems-clustering
-build "systems-clustering-1" started
-```
-
-Or to push your local committed code
-
-```
-g add .
-make oc_build_head
-```
-
 And finally you can run a job that does the clustering
 
 ```
-make oc_cluster_train
+make oc_mlflow_job
 ```
 
 Look at the output of the job
