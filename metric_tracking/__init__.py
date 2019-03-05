@@ -14,7 +14,6 @@ def do_tracking():
         mlflow_experiment_id = os.getenv("MLFLOW_EXPERIMENT_ID")
     else:
         mlflow_experiment_id = mlflow.create_experiment()
-        
 
     for date_a, date_b in zip(available_dates[:-1], available_dates[1:]):
         mlflow.set_experiment(mlflow_experiment_id)
