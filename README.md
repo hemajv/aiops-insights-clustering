@@ -48,10 +48,17 @@ Copy .env file and adjust variables
 cp .env.example .env
 ```
 
-And finally you can run a job that does the clustering
+After the image is built, we can use it to run the clustering on OpenShift.
+
+Edit the Makefile to set the APP_IMAGE_URI to your application image as follows:
 
 ```
-make oc_mlflow_job
+  oc new-app mlflow-experiment-job --param APP_IMAGE_URI=your-application-image-name\
+```
+
+To run the clustering:
+```
+  make oc_mlflow_job
 ```
 
 Look at the output of the job
