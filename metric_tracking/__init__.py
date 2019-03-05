@@ -9,14 +9,9 @@ import mlflow
 def do_tracking():
     available_dates = list(storage.available().keys())
     available_dates.sort()
-    
-    if "MLFLOW_EXPERIMENT_ID" in os.environ:
-        mlflow_experiment_id = os.getenv("MLFLOW_EXPERIMENT_ID")
-    else:
-        mlflow_experiment_id = mlflow.create_experiment()
 
     for date_a, date_b in zip(available_dates[:-1], available_dates[1:]):
-        mlflow.set_experiment(mlflow_experiment_id)
+        mlflow.set_experiment("aiops-insights-clustering")
         mlflow.start_run()
         mlflow.log_param("Date A", date_a)
         mlflow.log_param("Date B", date_b)
@@ -46,7 +41,8 @@ def calculate_score(date_a, date_b):
 
         median_number_ids_in_cluster = (len(systems_a) + len(systems_b)) / 2.0
         score = number_ids_in_both / median_number_ids_in_cluster
-
+        
+        mlflow.log_metric("number_of_ids_in_both_days", number_ids_in_both)
         mlflow.log_metric(("cluster_stability_%s" % cluster_id), score)
         logging.info("cluster_id %i - stability score %f" % (cluster_id, score))
 
