@@ -16,7 +16,7 @@ oc_build_head:
 #		--param CEPH_BUCKET=${CEPH_BUCKET}
 		
 oc_mlflow_job:
-	oc new-app mlflow-experiment-job --param APP_IMAGE_URI=your-application-image-name\
+	oc new-app mlflow-experiment-job --param APP_IMAGE_URI=yaiops-insights-clustering\
 		--param LIMIT_CPU=4 \
 		--param LIMIT_MEM=4G \
                 --env AIOPS_TRAINING_DATE=${AIOPS_TRAINING_DATE} \
